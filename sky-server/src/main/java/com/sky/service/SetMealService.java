@@ -46,5 +46,5 @@ public interface SetMealService {
      * @param status
      * @param id
      */
-    void updateStatus(int status, Long id);
+    void updateStatus(Integer status, Long id);
 }

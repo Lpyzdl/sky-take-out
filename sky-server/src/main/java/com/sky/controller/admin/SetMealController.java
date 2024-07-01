@@ -95,7 +95,7 @@ public class SetMealController {
 
     @PostMapping("/status/{status}")
     @ApiOperation("起售停售套餐设置")
-    public Result startOrStop(@PathVariable int status, Long id){
+    public Result startOrStop(@PathVariable Integer status, Long id){
         log.info("起售停售套餐设置:{},{}",status,id);
         setMealService.updateStatus(status, id);
         return Result.success();
