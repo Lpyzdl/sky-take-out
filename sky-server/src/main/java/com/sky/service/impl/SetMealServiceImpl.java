@@ -163,7 +163,7 @@ public class SetMealServiceImpl implements SetMealService {
                         .id(id)
                         .status(status).build();
 
-//        setMealMapper.updateStatus(setmeal);
+        setMealMapper.update(setmeal);
     }
 
 }
