@@ -98,4 +98,19 @@ public class DishController {
         List<Dish> list = dishService.getByCategoryId(categoryId);
         return Result.success(list);
     }
+
+    /**
+     * 设置菜品启用禁用
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("设置菜品启用禁用")
+    public Result startOrStopDish(@PathVariable Integer status, Long id){
+        log.info("设置菜品启用禁用：{}，{}",status,id);
+        dishService.setStartOrStop(status, id);
+
+        return Result.success();
+    }
 }
