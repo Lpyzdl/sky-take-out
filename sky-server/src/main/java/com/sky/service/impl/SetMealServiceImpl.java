@@ -2,10 +2,14 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
@@ -34,11 +38,15 @@ public class SetMealServiceImpl implements SetMealService {
      */
     @Transactional
     public void insert(SetmealDTO setmealDTO) {
+
         //先加入套餐信息
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
+        setmeal.setStatus(StatusConstant.DISABLE);
+
         //向套餐表插入数据
         setMealMapper.insert(setmeal);
+
         //获取生成的套餐id
         Long setmealId = setmeal.getId();
 
@@ -52,7 +60,11 @@ public class SetMealServiceImpl implements SetMealService {
         }
     }
 
-
+    /**
+     * 套餐分页查询
+     * @param setmealPageQueryDTO
+     * @return
+     */
     public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
         PageHelper.startPage(setmealPageQueryDTO.getPage(),setmealPageQueryDTO.getPageSize());
 
@@ -61,5 +73,26 @@ public class SetMealServiceImpl implements SetMealService {
         List<Setmeal> records = page.getResult();
         PageResult pageResult = new PageResult(total,records);
         return pageResult;
+    }
+
+    /**
+     * 套餐批量删除
+     * @param ids
+     */
+    public void deleteBtach(List<Long> ids) {
+
+        //起售中的套餐不能直接删除
+        for (Long id : ids) {
+            Dish dish = setMealMapper.getById(id);
+            if (dish.getStatus() == StatusConstant.ENABLE){
+                //套餐起售中，不能删除
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+
+        //删除套餐信息
+        setMealMapper.deleteBatch(ids);
+        //删除套餐和菜品关联信息
+        setMealDishMapper.deleteBySetmealIds(ids);
     }
 }
