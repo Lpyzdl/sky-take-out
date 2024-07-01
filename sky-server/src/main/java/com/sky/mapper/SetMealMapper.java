@@ -58,4 +58,11 @@ public interface SetMealMapper {
     @AutoFill(value = OperationType.UPDATE)
     void update(Setmeal setmeal);
 
+    /**
+     * 根据菜品id查看菜品关联的套餐信息
+     * @param dishId
+     * @return
+     */
+    @Select("select a.* from setmeal a left join setmeal_dish b on a.id = b.setmeal_id where dish_id = #{dishId}")
+    List<Setmeal> getByMealId(Long dishId);
 }
