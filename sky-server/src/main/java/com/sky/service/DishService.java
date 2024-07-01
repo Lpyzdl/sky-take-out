@@ -49,11 +49,4 @@ public interface DishService {
      * @return
      */
     List<Dish> getByCategoryId(Long categoryId);
-
-    /**
-     * 设置菜品启用禁用
-     * @param status
-     * @param id
-     */
-    void setStartOrStop(Integer status, Long id);
 }

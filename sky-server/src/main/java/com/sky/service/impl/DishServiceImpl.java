@@ -8,13 +8,10 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
-import com.sky.entity.Setmeal;
 import com.sky.exception.DeletionNotAllowedException;
-import com.sky.exception.DishDisableFailedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealDishMapper;
-import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -24,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static com.sky.constant.MessageConstant.DISH_BE_RELATED_BY_ONSALE_SETMEAL;
 
 @Service
 public class DishServiceImpl implements DishService {
@@ -38,9 +33,6 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private SetMealDishMapper setMealDishMapper;
-
-    @Autowired
-    private SetMealMapper setMealMapper;
 
     /**
      * 新增菜品和对应的口味数据
@@ -165,29 +157,5 @@ public class DishServiceImpl implements DishService {
                                     .build();
 
         return dishMapper.list(dish);
-    }
-
-    /**
-     * 设置菜品启用禁用
-     * @param status
-     * @param id
-     */
-    public void setStartOrStop(Integer status, Long id) {
-        //如果为禁用，查看菜品关联的套餐信息，如果套餐启用则无法修改
-        if(status == StatusConstant.DISABLE){
-            List<Setmeal> setmeals = setMealMapper.getByMealId(id);
-            if (setmeals != null && setmeals.size() > 0){
-                setmeals.forEach(setmeal -> {
-                    if (setmeal.getStatus() == StatusConstant.ENABLE){
-                        throw new DishDisableFailedException(DISH_BE_RELATED_BY_ONSALE_SETMEAL + "。套餐为：" +setmeal.getName());
-                    }
-                });
-
-            }
-        }
-
-        Dish dish = Dish.builder().id(id).status(status).build();
-
-        dishMapper.update(dish);
     }
 }
