@@ -48,5 +48,5 @@ public interface SetMealMapper {
      * @return
      */
     @Select("select * from setmeal where id = #{id}")
-    Dish getById(Long id);
+    Setmeal getById(Long id);
 }

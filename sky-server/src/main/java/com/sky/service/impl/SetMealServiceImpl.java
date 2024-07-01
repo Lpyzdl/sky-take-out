@@ -14,6 +14,7 @@ import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetMealService;
+import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,8 +84,8 @@ public class SetMealServiceImpl implements SetMealService {
 
         //起售中的套餐不能直接删除
         for (Long id : ids) {
-            Dish dish = setMealMapper.getById(id);
-            if (dish.getStatus() == StatusConstant.ENABLE){
+            Setmeal setmeal = setMealMapper.getById(id);
+            if (setmeal.getStatus() == StatusConstant.ENABLE){
                 //套餐起售中，不能删除
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
             }
@@ -94,5 +95,17 @@ public class SetMealServiceImpl implements SetMealService {
         setMealMapper.deleteBatch(ids);
         //删除套餐和菜品关联信息
         setMealDishMapper.deleteBySetmealIds(ids);
+    }
+
+    /**
+     * 根据套餐id查询套餐
+     * @param id
+     * @return
+     */
+    public SetmealVO getById(Long id) {
+        Setmeal setmeal = setMealMapper.getById(id);
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal, setmealVO);
+        return setmealVO;
     }
 }
