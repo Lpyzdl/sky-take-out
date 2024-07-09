@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
@@ -14,6 +15,7 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -107,5 +109,22 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         return orderSubmitVO;
+    }
+
+    /**
+     * 订单支付，无实现
+     * @param ordersPaymentDTO
+     */
+    public void payment(OrdersPaymentDTO ordersPaymentDTO) {
+        Long userId = BaseContext.getCurrentId();
+        String orderNumber = ordersPaymentDTO.getOrderNumber();
+        Orders orders = orderMapper.getOrder(orderNumber, userId);
+
+        orders.setPayMethod(ordersPaymentDTO.getPayMethod());
+        orders.setPayStatus(Orders.PAID);
+        orders.setStatus(Orders.TO_BE_CONFIRMED);
+        orders.setCheckoutTime(LocalDateTime.now());
+
+        orderMapper.updateStatus(orders);
     }
 }
