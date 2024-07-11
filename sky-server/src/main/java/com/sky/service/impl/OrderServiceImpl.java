@@ -1,7 +1,10 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.AddressBook;
@@ -9,14 +12,16 @@ import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.entity.ShoppingCart;
 import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
-import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +83,8 @@ public class OrderServiceImpl implements OrderService {
         orders.setConsignee(addressBook.getConsignee());
         orders.setUserId(userId);
 
+        orders.setAddress(addressBook.getDetail());
+
         orderMapper.insert(orders);
 
 
@@ -126,5 +133,126 @@ public class OrderServiceImpl implements OrderService {
         orders.setCheckoutTime(LocalDateTime.now());
 
         orderMapper.updateStatus(orders);
+    }
+
+    /**
+     * 分页查询历史订单
+     * @param page
+     * @param pageSize
+     * @param status
+     * @return
+     */
+    public PageResult pageQuery(int page, int pageSize, Integer status) {
+
+        OrdersPageQueryDTO ordersPageQueryDTO = new OrdersPageQueryDTO();
+
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
+        ordersPageQueryDTO.setStatus(status);
+        PageHelper.startPage(page, pageSize);
+        Page<Orders> ordersPage = orderMapper.pageQuery(ordersPageQueryDTO);
+        List<OrderVO> list = new ArrayList<>();
+        if (ordersPage != null && ordersPage.size() != 0){
+            for (Orders order : ordersPage) {
+                Long orderId = order.getId();
+                List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orderId);
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(order, orderVO);
+
+                orderVO.setOrderDetailList(orderDetailList);
+                list.add(orderVO);
+            }
+        }
+
+
+        return new PageResult(ordersPage.getTotal(), list);
+    }
+
+    /**
+     * 查询订单详情
+     * @param orderId
+     * @return
+     */
+    public OrderVO getDetail(Long orderId) {
+
+        //查询订单
+        Orders orders = orderMapper.getById(orderId);
+
+        //查询订单详情
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orderId);
+
+        OrderVO orderVO = new OrderVO();
+        BeanUtils.copyProperties(orders, orderVO);
+        orderVO.setOrderDetailList(orderDetails);
+
+        return orderVO;
+    }
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    public void cancelOrder(Long id) {
+
+        //查询订单
+        Orders orders = orderMapper.getById(id);
+
+        //订单为空抛异常
+        if (orders == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        //订单状态不能取消时
+        if (orders.getStatus() > 2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders ordersNew = new Orders();
+        ordersNew.setId(orders.getId());
+
+        //订单已支付时
+        if (orders.getPayStatus() == Orders.PAID){
+            ordersNew.setPayStatus(Orders.REFUND);
+        }
+
+        ordersNew.setStatus(Orders.CANCELLED);
+        ordersNew.setCancelTime(LocalDateTime.now());
+        ordersNew.setCancelReason("用户取消");
+
+        orderMapper.updateStatus(ordersNew);
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    public void repetitionOrder(Long id) {
+
+
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+        //将商品信息添加到购物车
+
+        List<ShoppingCart> shoppingCarts = new ArrayList<>();
+
+        for (OrderDetail orderDetail : orderDetails) {
+
+            ShoppingCart shoppingCart = ShoppingCart.builder()
+                    .image(orderDetail.getImage())
+                    .name(orderDetail.getName())
+                    .dishId(orderDetail.getDishId())
+                    .setmealId(orderDetail.getDishId())
+                    .dishFlavor(orderDetail.getDishFlavor())
+                    .number(orderDetail.getNumber())
+                    .amount(orderDetail.getAmount())
+                    .image(orderDetail.getImage())
+                    .build();
+            shoppingCart.setUserId(BaseContext.getCurrentId());
+
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            shoppingCarts.add(shoppingCart);
+        }
+
+        shoppingCartMapper.insertBatch(shoppingCarts);
+
     }
 }
