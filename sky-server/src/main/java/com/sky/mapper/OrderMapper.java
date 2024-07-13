@@ -5,6 +5,10 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.yaml.snakeyaml.events.Event;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Mapper
@@ -54,4 +58,13 @@ public interface OrderMapper {
      */
     @Select("select count(*) from orders where status = #{status}")
     Integer getCountByStatus(Integer status);
+
+    /**
+     * 根据订单状态和下单时间查询订单
+     * @param status
+     * @param orderTime
+     * @return
+     */
+    @Select("select orders.id from orders where status = #{status} and order_time < #{orderTime}")
+    List<Long> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
 }
