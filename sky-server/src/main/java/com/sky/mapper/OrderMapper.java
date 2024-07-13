@@ -67,4 +67,13 @@ public interface OrderMapper {
      */
     @Select("select orders.id from orders where status = #{status} and order_time < #{orderTime}")
     List<Long> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 查询date日期对应的营业额：状态为“已完成”的订单金额合计
+     * @param status
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    Double getTurnoverByTime(Integer status, LocalDateTime beginTime, LocalDateTime endTime);
 }
