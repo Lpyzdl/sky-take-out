@@ -95,4 +95,10 @@ public interface OrderService {
      * @throws Exception
      */
     void orderComplete(Long id) throws Exception;
+
+    /**
+     * 用户催单
+     * @param id
+     */
+    void reminderOrder(Long id);
 }
