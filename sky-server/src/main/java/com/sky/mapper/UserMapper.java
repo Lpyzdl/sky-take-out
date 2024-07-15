@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+
 @Mapper
 public interface UserMapper {
 
@@ -22,4 +24,12 @@ public interface UserMapper {
      * @param user
      */
     void insert(User user);
+
+    /**
+     * 根据用户下单时间查询用户量
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    Long getUserByTime(LocalDateTime beginTime, LocalDateTime endTime);
 }

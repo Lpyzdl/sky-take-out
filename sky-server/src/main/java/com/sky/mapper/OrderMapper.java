@@ -76,4 +76,5 @@ public interface OrderMapper {
      * @return
      */
     Double getTurnoverByTime(Integer status, LocalDateTime beginTime, LocalDateTime endTime);
+
 }
