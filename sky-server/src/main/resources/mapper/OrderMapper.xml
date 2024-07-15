@@ -86,5 +86,49 @@
         </where>
     </select>
 
+    <select id="getOrderCountByTime" resultType="java.lang.Integer">
+        select count(id) from orders
+        <where>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt;= #{endTime}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+<!--    <select id="getTop10ByTime" resultType="com.sky.dto.GoodsSalesDTO">-->
+<!--        select od.name,sum(od.number) as count from orders o left outer join order_detail od on o.id = od.order_id-->
+<!--        <where>-->
+<!--            <if test="status != null">-->
+<!--                and status = #{status}-->
+<!--            </if>-->
+<!--            <if test="beginTime != null">-->
+<!--                and order_time &gt;= #{beginTime}-->
+<!--            </if>-->
+<!--            <if test="endTime != null">-->
+<!--                and order_time &lt;= #{endTime}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        group by name order by count desc limit 10-->
+<!--    </select>-->
+
+    <select id="getTop10ByTime" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name,sum(od.number) as number from orders o, order_detail od where o.id = od.order_id
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="beginTime != null">
+            and order_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and order_time &lt;= #{endTime}
+        </if>
+        group by name order by number desc limit 10
+    </select>
 
 </mapper>

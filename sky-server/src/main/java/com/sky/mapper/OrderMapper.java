@@ -1,11 +1,11 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.yaml.snakeyaml.events.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,5 +76,23 @@ public interface OrderMapper {
      * @return
      */
     Double getTurnoverByTime(Integer status, LocalDateTime beginTime, LocalDateTime endTime);
+
+    /**
+     * 根据状态和时间进行每日订单统计
+     * @param beginTime
+     * @param endTime
+     * @param status
+     * @return
+     */
+    Integer getOrderCountByTime(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
+
+    /**
+     * 获取商品top10名称和数量列表
+     * @param beginTime
+     * @param endTime
+     * @param status
+     * @return
+     */
+    List<GoodsSalesDTO> getTop10ByTime(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
 
 }
