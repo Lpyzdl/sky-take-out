@@ -31,5 +31,5 @@ public interface UserMapper {
      * @param endTime
      * @return
      */
-    Long getUserByTime(LocalDateTime beginTime, LocalDateTime endTime);
+    Integer getUserByTime(LocalDateTime beginTime, LocalDateTime endTime);
 }

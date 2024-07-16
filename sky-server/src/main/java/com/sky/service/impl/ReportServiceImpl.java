@@ -91,24 +91,24 @@ public class ReportServiceImpl implements ReportService {
         dateList.add(end);
 
         //查询begin->end每天总的用户数
-        List<Long> totalUserList = new ArrayList<>();
+        List<Integer> totalUserList = new ArrayList<>();
         //查询begin->end每天新的用户数
-        List<Long> newUserList = new ArrayList<>();
+        List<Integer> newUserList = new ArrayList<>();
 
         for (LocalDate date : dateList) {
             //查询date日期内用户数量
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
             //select count(id) from user where create_time < ?
-            Long totalUser = userMapper.getUserByTime(null, endTime);
-            totalUser = totalUser == null ? 0L : totalUser;
+            Integer totalUser = userMapper.getUserByTime(null, endTime);
+            totalUser = totalUser == null ? 0 : totalUser;
             totalUserList.add(totalUser);
 
             //查询在date日期在小程序创建的用户数量
             LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
 
             //select count(id) from user where create_time < ? and create_time > ?
-            Long newlUser = userMapper.getUserByTime(beginTime, endTime);
-            newlUser = newlUser == null ? 0L : newlUser;
+            Integer newlUser = userMapper.getUserByTime(beginTime, endTime);
+            newlUser = newlUser == null ? 0 : newlUser;
             newUserList.add(newlUser);
         }
 
