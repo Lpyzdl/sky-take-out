@@ -1,7 +1,6 @@
 package com.sky.controller.admin;
 
 import com.sky.result.Result;
-import com.sky.service.OrderService;
 import com.sky.service.ReportService;
 import com.sky.vo.*;
 import io.swagger.annotations.Api;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 @RestController
@@ -96,6 +96,17 @@ public class ReportController {
         log.info("查询销量排名top10：{}到{}",begin, end);
         SalesTop10ReportVO salesTop10ReportVO = reportService.top10(begin, end);
         return Result.success(salesTop10ReportVO);
+    }
+
+    /**
+     * 导出运营数据报表
+     * @param response
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出运营数据报表")
+    public void exportStatistics(HttpServletResponse response){
+        log.info("导出运营数据");
+        reportService.exportBusiness(response);
     }
 
 
